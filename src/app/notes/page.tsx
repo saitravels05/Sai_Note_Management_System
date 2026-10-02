@@ -24,22 +24,33 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
     search: searchParam,
   };
 
-  const [notes, customers, suppliers] = await Promise.all([
-    NotesService.getNotes(filterOpts, {
-      businessId: user.businessId,
-      userId: user.id,
-    }),
-    prisma.customer.findMany({
-      where: { businessId: user.businessId, status: "ACTIVE" },
-      select: { id: true, name: true },
-      orderBy: { name: "asc" },
-    }),
-    prisma.supplier.findMany({
-      where: { businessId: user.businessId, status: "ACTIVE" },
-      select: { id: true, name: true },
-      orderBy: { name: "asc" },
-    }),
-  ]);
+  type NoteResult = Awaited<ReturnType<typeof NotesService.getNotes>>;
+  type PartyItem = { id: string; name: string };
+
+  let notes: NoteResult = [];
+  let customers: PartyItem[] = [];
+  let suppliers: PartyItem[] = [];
+
+  try {
+    [notes, customers, suppliers] = await Promise.all([
+      NotesService.getNotes(filterOpts, {
+        businessId: user.businessId,
+        userId: user.id,
+      }),
+      prisma.customer.findMany({
+        where: { businessId: user.businessId, status: "ACTIVE" },
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+      }),
+      prisma.supplier.findMany({
+        where: { businessId: user.businessId, status: "ACTIVE" },
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+      }),
+    ]);
+  } catch (err) {
+    console.warn("Database offline in NotesPage, rendering clean empty state:", err);
+  }
 
   const serializedNotes: SerializedNote[] = notes.map((n) => ({
     id: n.id,

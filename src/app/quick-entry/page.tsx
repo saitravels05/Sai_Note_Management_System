@@ -52,7 +52,7 @@ export default async function QuickEntryPage({ searchParams }: QuickEntryPagePro
     }
   }
 
-  const categories = await CategoryService.getCategories(user.businessId, "ALL");
+  const categories = await CategoryService.getCategories(user.businessId, "ALL").catch(() => []);
 
   return (
     <div className="max-w-4xl mx-auto py-2 sm:py-4 space-y-4">

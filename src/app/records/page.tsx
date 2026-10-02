@@ -52,53 +52,75 @@ export default async function RecordsPage({ searchParams }: RecordsPageProps) {
 
   const sortBy = (sortByStr as "newest" | "oldest" | "highest_amount" | "lowest_amount" | "recently_updated") || "newest";
 
-  // Fetch filtered records
-  const result = await RecordService.getRecords(
-    {
-      search,
-      type,
-      status,
-      paymentStatus,
-      categoryId,
-      customerId,
-      supplierId,
-      startDate,
-      endDate,
-      minAmount,
-      maxAmount,
-      sortBy,
-      page,
+  type GetRecordsResult = Awaited<ReturnType<typeof RecordService.getRecords>>;
+  let result: GetRecordsResult = {
+    records: [],
+    pagination: {
+      totalCount: 0,
+      totalPages: 0,
+      currentPage: page,
       pageSize,
+      hasNextPage: false,
+      hasPrevPage: false,
     },
-    {
-      businessId: user.businessId,
-      userId: user.id,
-    }
-  );
+  };
+  let categories: { id: string; name: string }[] = [];
+  let customers: { id: string; name: string }[] = [];
+  let suppliers: { id: string; name: string }[] = [];
+  let savedFilters: { id: string; name: string; filterDefinition: unknown }[] = [];
 
-  // Fetch filter metadata in parallel
-  const [categories, customers, suppliers, savedFilters] = await Promise.all([
-    prisma.category.findMany({
-      where: { businessId: user.businessId, isActive: true },
-      select: { id: true, name: true },
-      orderBy: { name: "asc" },
-    }),
-    prisma.customer.findMany({
-      where: { businessId: user.businessId, status: "ACTIVE" },
-      select: { id: true, name: true },
-      orderBy: { name: "asc" },
-    }),
-    prisma.supplier.findMany({
-      where: { businessId: user.businessId, status: "ACTIVE" },
-      select: { id: true, name: true },
-      orderBy: { name: "asc" },
-    }),
-    prisma.savedFilter.findMany({
-      where: { businessId: user.businessId, userId: user.id, module: "RECORDS" },
-      select: { id: true, name: true, filterDefinition: true },
-      orderBy: { createdAt: "desc" },
-    }),
-  ]);
+  try {
+    const [fetchedResult, fetchedMeta] = await Promise.all([
+      RecordService.getRecords(
+        {
+          search,
+          type,
+          status,
+          paymentStatus,
+          categoryId,
+          customerId,
+          supplierId,
+          startDate,
+          endDate,
+          minAmount,
+          maxAmount,
+          sortBy,
+          page,
+          pageSize,
+        },
+        {
+          businessId: user.businessId,
+          userId: user.id,
+        }
+      ),
+      Promise.all([
+        prisma.category.findMany({
+          where: { businessId: user.businessId, isActive: true },
+          select: { id: true, name: true },
+          orderBy: { name: "asc" },
+        }),
+        prisma.customer.findMany({
+          where: { businessId: user.businessId, status: "ACTIVE" },
+          select: { id: true, name: true },
+          orderBy: { name: "asc" },
+        }),
+        prisma.supplier.findMany({
+          where: { businessId: user.businessId, status: "ACTIVE" },
+          select: { id: true, name: true },
+          orderBy: { name: "asc" },
+        }),
+        prisma.savedFilter.findMany({
+          where: { businessId: user.businessId, userId: user.id, module: "RECORDS" },
+          select: { id: true, name: true, filterDefinition: true },
+          orderBy: { createdAt: "desc" },
+        }),
+      ]),
+    ]);
+    result = fetchedResult;
+    [categories, customers, suppliers, savedFilters] = fetchedMeta;
+  } catch (dbErr) {
+    console.warn("Database offline or starting up in RecordsPage, rendering clean empty state:", dbErr);
+  }
 
   // Serialize records for client components
   const serializedRecords: SerializedRecord[] = result.records.map((r) => ({
