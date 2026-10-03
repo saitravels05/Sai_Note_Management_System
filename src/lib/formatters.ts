@@ -5,7 +5,7 @@ import Decimal from "decimal.js";
  * Format a number or Decimal string into Indian Rupee (INR) format (e.g. ₹25,000.00 or ₹4,85,000)
  */
 export function formatINR(
-  amount: number | string | Decimal | null | undefined,
+  amount: number | string | Decimal | { getDecimal?: () => Decimal; toString?: () => string } | null | undefined,
   showDecimals = true
 ): string {
   if (amount === null || amount === undefined || amount === "") {
@@ -13,7 +13,22 @@ export function formatINR(
   }
 
   try {
-    const dec = new Decimal(amount.toString());
+    let raw: string;
+    if (typeof amount === "object") {
+      if (typeof (amount as any).getDecimal === "function") {
+        raw = (amount as any).getDecimal().toString();
+      } else if (typeof amount.toString === "function") {
+        raw = amount.toString();
+      } else {
+        raw = "0";
+      }
+    } else {
+      raw = String(amount);
+    }
+
+    // Strip currency symbols and commas if already present
+    const cleaned = raw.replace(/[^0-9.-]+/g, "");
+    const dec = new Decimal(cleaned || "0");
     const num = dec.toNumber();
 
     return new Intl.NumberFormat("en-IN", {

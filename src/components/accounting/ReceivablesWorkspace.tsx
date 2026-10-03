@@ -126,7 +126,7 @@ export function ReceivablesWorkspace({
             Total Outstanding
           </div>
           <div className="text-lg sm:text-xl font-black text-white">
-            ₹{formatINR(summary.totalReceivables.getDecimal())}
+            {formatINR((summary.totalReceivables as any)?.getDecimal ? (summary.totalReceivables as any).getDecimal() : summary.totalReceivables)}
           </div>
           <div className="text-[10px] text-slate-500">
             {summary.totalCount} invoices total
@@ -138,7 +138,7 @@ export function ReceivablesWorkspace({
             <Clock className="w-3.5 h-3.5" /> Due Today
           </div>
           <div className="text-lg sm:text-xl font-black text-amber-300">
-            ₹{formatINR(summary.dueTodayAmount.getDecimal())}
+            {formatINR((summary.dueTodayAmount as any)?.getDecimal ? (summary.dueTodayAmount as any).getDecimal() : summary.dueTodayAmount)}
           </div>
           <div className="text-[10px] text-amber-400/70">
             {summary.dueTodayCount} due today
@@ -150,7 +150,7 @@ export function ReceivablesWorkspace({
             <AlertTriangle className="w-3.5 h-3.5" /> Overdue
           </div>
           <div className="text-lg sm:text-xl font-black text-rose-300">
-            ₹{formatINR(summary.overdueAmount.getDecimal())}
+            {formatINR((summary.overdueAmount as any)?.getDecimal ? (summary.overdueAmount as any).getDecimal() : summary.overdueAmount)}
           </div>
           <div className="text-[10px] text-rose-400/70">
             {summary.overdueCount} overdue invoices
@@ -162,7 +162,7 @@ export function ReceivablesWorkspace({
             Partially Paid
           </div>
           <div className="text-lg sm:text-xl font-black text-blue-300">
-            ₹{formatINR(summary.partiallyPaidAmount.getDecimal())}
+            {formatINR((summary.partiallyPaidAmount as any)?.getDecimal ? (summary.partiallyPaidAmount as any).getDecimal() : summary.partiallyPaidAmount)}
           </div>
           <div className="text-[10px] text-blue-400/70">
             {summary.partiallyPaidCount} active partials
@@ -174,10 +174,10 @@ export function ReceivablesWorkspace({
             Total Collected
           </div>
           <div className="text-lg sm:text-xl font-black text-emerald-400">
-            ₹{formatINR(summary.totalPaidAmount.getDecimal())}
+            {formatINR((summary.totalPaidAmount as any)?.getDecimal ? (summary.totalPaidAmount as any).getDecimal() : summary.totalPaidAmount)}
           </div>
           <div className="text-[10px] text-slate-500">
-            from ₹{formatINR(summary.totalOriginalAmount.getDecimal())} billed
+            from {formatINR((summary.totalOriginalAmount as any)?.getDecimal ? (summary.totalOriginalAmount as any).getDecimal() : summary.totalOriginalAmount)} billed
           </div>
         </div>
       </div>
@@ -190,34 +190,34 @@ export function ReceivablesWorkspace({
             Receivable Aging Schedule
           </span>
           <span className="text-slate-400 text-[11px]">
-            Total: ₹{formatINR(aging.total.getDecimal())}
+            Total: {formatINR((aging.total as any)?.getDecimal ? (aging.total as any).getDecimal() : aging.total)}
           </span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1 text-center">
           <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
             <div className="text-[10px] text-emerald-400 font-bold uppercase">Current</div>
-            <div className="text-xs font-bold text-white mt-1">₹{formatINR(aging.current.amount.getDecimal())}</div>
+            <div className="text-xs font-bold text-white mt-1">{formatINR((aging.current.amount as any)?.getDecimal ? (aging.current.amount as any).getDecimal() : aging.current.amount)}</div>
             <div className="text-[10px] text-slate-500">{aging.current.count} inv ({aging.current.percentage}%)</div>
           </div>
           <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
             <div className="text-[10px] text-yellow-400 font-bold uppercase">1–30 Days</div>
-            <div className="text-xs font-bold text-white mt-1">₹{formatINR(aging.days1To30.amount.getDecimal())}</div>
+            <div className="text-xs font-bold text-white mt-1">{formatINR((aging.days1To30.amount as any)?.getDecimal ? (aging.days1To30.amount as any).getDecimal() : aging.days1To30.amount)}</div>
             <div className="text-[10px] text-slate-500">{aging.days1To30.count} inv ({aging.days1To30.percentage}%)</div>
           </div>
           <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
             <div className="text-[10px] text-amber-400 font-bold uppercase">31–60 Days</div>
-            <div className="text-xs font-bold text-white mt-1">₹{formatINR(aging.days31To60.amount.getDecimal())}</div>
+            <div className="text-xs font-bold text-white mt-1">{formatINR((aging.days31To60.amount as any)?.getDecimal ? (aging.days31To60.amount as any).getDecimal() : aging.days31To60.amount)}</div>
             <div className="text-[10px] text-slate-500">{aging.days31To60.count} inv ({aging.days31To60.percentage}%)</div>
           </div>
           <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
             <div className="text-[10px] text-orange-400 font-bold uppercase">61–90 Days</div>
-            <div className="text-xs font-bold text-white mt-1">₹{formatINR(aging.days61To90.amount.getDecimal())}</div>
+            <div className="text-xs font-bold text-white mt-1">{formatINR((aging.days61To90.amount as any)?.getDecimal ? (aging.days61To90.amount as any).getDecimal() : aging.days61To90.amount)}</div>
             <div className="text-[10px] text-slate-500">{aging.days61To90.count} inv ({aging.days61To90.percentage}%)</div>
           </div>
           <div className="p-2.5 rounded-xl bg-slate-900 border border-rose-500/20 bg-rose-500/5 col-span-2 sm:col-span-1">
             <div className="text-[10px] text-rose-400 font-bold uppercase">90+ Days</div>
-            <div className="text-xs font-bold text-rose-300 mt-1">₹{formatINR(aging.days90Plus.amount.getDecimal())}</div>
+            <div className="text-xs font-bold text-rose-300 mt-1">{formatINR((aging.days90Plus.amount as any)?.getDecimal ? (aging.days90Plus.amount as any).getDecimal() : aging.days90Plus.amount)}</div>
             <div className="text-[10px] text-rose-400/70">{aging.days90Plus.count} inv ({aging.days90Plus.percentage}%)</div>
           </div>
         </div>
